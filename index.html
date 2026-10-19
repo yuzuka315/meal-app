@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>What Should We Eat?</title>
+    <style>
+      :root {
+        --bg: #fff7f3;
+        --card: #ffffff;
+        --text: #3a2f2a;
+        --theme: #e07a5f;
+        --theme-dark: #c65c42;
+        --want: #db2777;
+        --ok: #0d9488;
+        --no: #6b7280;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .container { width: 100%; max-width: 460px; padding: 24px 16px; }
+      h1 {
+        font-size: 22px;
+        text-align: center;
+        margin: 8px 0 20px;
+        color: var(--theme-dark);
+        font-weight: 800;
+      }
+      .sub { text-align: center; color: #b08b7e; font-size: 14px; margin: -10px 0 20px; }
+      .card {
+        background: var(--card);
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 6px 18px rgba(224, 122, 95, 0.08);
+        border: 1px solid rgba(224, 122, 95, 0.12);
+        margin-bottom: 18px;
+      }
+      .btn {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.15s, background 0.2s;
+        margin-top: 12px;
+      }
+      .btn:active { transform: scale(0.98); }
+      .btn-primary { background: var(--theme); color: #fff; }
+      .btn-primary:hover { background: var(--theme-dark); }
+      .btn-ghost { background: transparent; color: #b08b7e; box-shadow: none; }
+
+      label { font-size: 13px; font-weight: 700; color: #8a6f64; display: block; margin: 12px 0 4px; }
+      .text-input {
+        width: 100%;
+        padding: 14px;
+        border: 1px solid #f0ddd4;
+        border-radius: 10px;
+        font-size: 16px;
+        outline: none;
+        background: #fdfaf8;
+      }
+      .text-input:focus { border-color: var(--theme); background: #fff; }
+
+      .input-group { display: flex; gap: 10px; }
+      .btn-add {
+        background: var(--theme);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0 20px;
+        font-size: 22px;
+        cursor: pointer;
+      }
+      .tag-container, .history-container {
+        display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px;
+      }
+      .tag {
+        background: #fdeae2; color: var(--theme-dark);
+        padding: 7px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;
+        display: flex; align-items: center; gap: 6px;
+      }
+      .tag .remove { cursor: pointer; font-weight: bold; opacity: 0.6; }
+      .history-item {
+        background: #fff; border: 1px solid #f0ddd4; color: #8a6f64;
+        padding: 7px 12px; border-radius: 20px; font-size: 13px;
+        display: flex; align-items: center; gap: 6px; cursor: pointer;
+      }
+      .history-item:active { background: #fdfaf8; }
+      .history-remove { color: #cbb5ab; font-weight: bold; }
+
+      .section-title { font-size: 14px; font-weight: 800; margin: 20px 0 8px 4px; }
+      .t-want { color: var(--want); }
+      .t-ok { color: var(--ok); }
+      .t-no { color: var(--no); }
+      .sort-list {
+        min-height: 54px; background: #fdfaf8; border: 1px dashed #e8cfc4;
+        border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px;
+      }
+      .empty-hint { color: #cbb5ab; font-size: 13px; text-align: center; padding: 6px; }
+      .sort-item {
+        background: #fff; padding: 10px 12px; border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04); font-size: 15px; font-weight: 700;
+        display: flex; align-items: center; gap: 8px; border: 1px solid #f3e7e1;
+      }
+      .sort-name { flex: 1; }
+      .mini {
+        border: 1px solid #ecd9d0; background: #fff; border-radius: 7px;
+        width: 30px; height: 30px; font-size: 14px; cursor: pointer; padding: 0;
+        display: inline-flex; align-items: center; justify-content: center;
+      }
+      .mini:active { transform: scale(0.92); }
+      .mini.on-want { background: var(--want); color: #fff; border-color: var(--want); }
+      .mini.on-ok { background: var(--ok); color: #fff; border-color: var(--ok); }
+      .mini.on-no { background: var(--no); color: #fff; border-color: var(--no); }
+      .mini-sep { width: 6px; }
+
+      .result-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 14px 16px; border-bottom: 1px solid #f7ede8;
+      }
+      .result-rank { font-size: 18px; font-weight: 800; width: 34px; color: var(--theme); }
+      .result-name { flex: 1; font-size: 16px; font-weight: 700; }
+      .result-score {
+        font-size: 13px; font-weight: 700; color: #8a6f64;
+        background: #fdeae2; padding: 4px 10px; border-radius: 20px;
+      }
+      .rejected .result-name { text-decoration: line-through; color: #cbb5ab; }
+      .rejected .result-score { color: #ef4444; background: #fef2f2; }
+      .winner { background: #fff6f2; border-radius: 10px; }
+
+      .pass-emoji { font-size: 56px; text-align: center; margin: 10px 0; }
+
+      .view { display: none; }
+      .view.active { display: block; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- SETUP -->
+      <div id="view-setup" class="view active">
+        <h1>🍜 What Should We Eat?</h1>
+        <p class="sub">Can't decide together? Let the app pick for you two.</p>
+        <div class="card">
+          <label>Player 1 name</label>
+          <input class="text-input" id="name1" placeholder="e.g. Alex" />
+          <label>Player 2 name</label>
+          <input class="text-input" id="name2" placeholder="e.g. Sam" />
+          <button class="btn btn-primary" onclick="startGame()">Start</button>
+        </div>
+        <p class="sub" style="margin-top:4px">
+          How it works: each of you adds foods you feel like, sorts them into
+          Want / OK / No, and the app scores every option to find your best match.
+        </p>
+      </div>
+
+      <!-- PASS -->
+      <div id="view-pass" class="view">
+        <div class="pass-emoji">📱➡️</div>
+        <h1 id="pass-title">Pass the phone</h1>
+        <p class="sub" id="pass-sub"></p>
+        <div class="card">
+          <button class="btn btn-primary" onclick="continuePass()">I'm ready</button>
+        </div>
+      </div>
+
+      <!-- INPUT -->
+      <div id="view-input" class="view">
+        <h1 id="input-title">Add foods</h1>
+        <div class="card">
+          <div class="input-group">
+            <input class="text-input" id="food-input" placeholder="Type a food, press Enter"
+              onkeydown="if(event.key==='Enter') addFood()" />
+            <button class="btn-add" onclick="addFood()">+</button>
+          </div>
+          <div class="tag-container" id="tag-container"></div>
+          <div style="margin-top:20px; border-top:1px solid #f3e7e1; padding-top:14px;">
+            <label>🕒 Frequently added (tap to add)</label>
+            <div class="history-container" id="history-container"></div>
+          </div>
+          <button class="btn btn-primary" onclick="finishInput()">Done</button>
+        </div>
+      </div>
+
+      <!-- SORT -->
+      <div id="view-sort" class="view">
+        <h1 id="sort-title">Sort the options</h1>
+        <p class="sub">Tap ❤️ / 🙂 / 🙅 to set how you feel. Use ↑ ↓ to rank inside a group (higher = you want it more).</p>
+        <div class="section-title t-want">❤️ Want</div>
+        <div id="list-want" class="sort-list"></div>
+        <div class="section-title t-ok">🙂 OK</div>
+        <div id="list-ok" class="sort-list"></div>
+        <div class="section-title t-no">🙅 No</div>
+        <div id="list-no" class="sort-list"></div>
+        <button class="btn btn-primary" onclick="finishSort()">Confirm</button>
+      </div>
+
+      <!-- RESULT -->
+      <div id="view-result" class="view">
+        <h1>✨ Your Match ✨</h1>
+        <p class="sub" id="result-sub"></p>
+        <div class="card" style="padding:6px 0" id="result-list"></div>
+        <button class="btn btn-primary" onclick="playAgain()">Play again 🔄</button>
+      </div>
+    </div>
+
+    <script>
+      // ---------- state (in memory, single device) ----------
+      var players = [];          // [{name, inputs:[], want:[], ok:[], no:[]}, ...]
+      var allFoods = [];         // union of both players' inputs
+      var current = 0;           // active player index
+      var pendingCallback = null;
+
+      var HISTORY_KEY = 'wswe-history';
+
+      // ---------- localStorage history ----------
+      function loadHistory() {
+        try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || {}; }
+        catch (e) { return {}; }
+      }
+      function bumpHistory(food) {
+        var h = loadHistory();
+        h[food] = (h[food] || 0) + 1;
+        try { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); } catch (e) {}
+      }
+      function removeHistory(food) {
+        var h = loadHistory();
+        delete h[food];
+        try { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); } catch (e) {}
+        renderHistory();
+      }
+      function topHistory() {
+        var h = loadHistory();
+        return Object.keys(h).sort(function (a, b) { return h[b] - h[a]; }).slice(0, 15);
+      }
+
+      // ---------- view helpers ----------
+      function showView(id) {
+        var views = document.querySelectorAll('.view');
+        for (var i = 0; i < views.length; i++) views[i].classList.remove('active');
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0, 0);
+      }
+      function showPass(nextName, cb) {
+        document.getElementById('pass-sub').innerText = 'Hand the phone to ' + nextName + '.';
+        pendingCallback = cb;
+        showView('view-pass');
+      }
+      window.continuePass = function () {
+        var cb = pendingCallback; pendingCallback = null;
+        if (cb) cb();
+      };
+
+      // ---------- start ----------
+      window.startGame = function () {
+        var n1 = document.getElementById('name1').value.trim() || 'Player 1';
+        var n2 = document.getElementById('name2').value.trim() || 'Player 2';
+        players = [
+          { name: n1, inputs: [], want: [], ok: [], no: [] },
+          { name: n2, inputs: [], want: [], ok: [], no: [] }
+        ];
+        allFoods = [];
+        current = 0;
+        goInput(0);
+      };
+
+      // ---------- input phase ----------
+      function goInput(i) {
+        current = i;
+        document.getElementById('input-title').innerText = players[i].name + ', add foods you feel like';
+        document.getElementById('food-input').value = '';
+        renderTags();
+        renderHistory();
+        showView('view-input');
+      }
+      window.addFood = function () {
+        var el = document.getElementById('food-input');
+        var v = el.value.trim();
+        if (!v) return;
+        if (players[current].inputs.indexOf(v) === -1) {
+          players[current].inputs.push(v);
+        }
+        el.value = '';
+        renderTags();
+        renderHistory();
+      };
+      window.addFromHistory = function (food) {
+        if (players[current].inputs.indexOf(food) === -1) {
+          players[current].inputs.push(food);
+          renderTags();
+          renderHistory();
+        }
+      };
+      window.removeFood = function (food) {
+        players[current].inputs = players[current].inputs.filter(function (f) { return f !== food; });
+        renderTags();
+        renderHistory();
+      };
+      function renderTags() {
+        var c = document.getElementById('tag-container');
+        c.innerHTML = '';
+        players[current].inputs.forEach(function (food) {
+          var t = document.createElement('div');
+          t.className = 'tag';
+          t.innerHTML = food + ' <span class="remove">×</span>';
+          t.querySelector('.remove').onclick = function () { removeFood(food); };
+          c.appendChild(t);
+        });
+      }
+      function renderHistory() {
+        var c = document.getElementById('history-container');
+        c.innerHTML = '';
+        var used = [];
+        players.forEach(function (p) {
+          p.inputs.forEach(function (f) { if (used.indexOf(f) === -1) used.push(f); });
+        });
+        var list = topHistory().filter(function (f) { return used.indexOf(f) === -1; });
+        if (list.length === 0) {
+          c.innerHTML = '<span style="font-size:12px;color:#cbb5ab">No saved foods yet</span>';
+          return;
+        }
+        list.forEach(function (food) {
+          var item = document.createElement('div');
+          item.className = 'history-item';
+          var txt = document.createElement('span');
+          txt.innerText = food;
+          txt.onclick = function () { addFromHistory(food); };
+          var rm = document.createElement('span');
+          rm.className = 'history-remove';
+          rm.innerText = '×';
+          rm.onclick = function (e) { e.stopPropagation(); removeHistory(food); };
+          item.appendChild(txt); item.appendChild(rm);
+          c.appendChild(item);
+        });
+      }
+      window.finishInput = function () {
+        if (players[current].inputs.length === 0) {
+          alert('Add at least one food first.');
+          return;
+        }
+        players[current].inputs.forEach(bumpHistory); // record to history only when confirmed
+        if (current === 0) {
+          showPass(players[1].name, function () { goInput(1); });
+        } else {
+          // build union; Player 2 keeps the phone and sorts right away
+          allFoods = [];
+          players.forEach(function (p) {
+            p.inputs.forEach(function (f) { if (allFoods.indexOf(f) === -1) allFoods.push(f); });
+          });
+          goSort(1);
+        }
+      };
+
+      // ---------- sort phase ----------
+      var GROUPS = { want: 'list-want', ok: 'list-ok', no: 'list-no' };
+      function goSort(i) {
+        current = i;
+        document.getElementById('sort-title').innerText = players[i].name + ', sort the options';
+        // start with everything in OK
+        players[i].want = [];
+        players[i].ok = allFoods.slice();
+        players[i].no = [];
+        renderAllGroups();
+        showView('view-sort');
+      }
+      function groupOf(food) {
+        var p = players[current];
+        if (p.want.indexOf(food) !== -1) return 'want';
+        if (p.no.indexOf(food) !== -1) return 'no';
+        return 'ok';
+      }
+      window.moveTo = function (food, group) {
+        var p = players[current];
+        ['want', 'ok', 'no'].forEach(function (g) {
+          p[g] = p[g].filter(function (f) { return f !== food; });
+        });
+        p[group].push(food);
+        renderAllGroups();
+      };
+      window.reorder = function (food, dir) {
+        var p = players[current];
+        var g = groupOf(food);
+        var arr = p[g];
+        var idx = arr.indexOf(food);
+        var j = idx + dir;
+        if (j < 0 || j >= arr.length) return;
+        arr[idx] = arr[j]; arr[j] = food;
+        renderAllGroups();
+      };
+      function renderAllGroups() {
+        renderGroup('want'); renderGroup('ok'); renderGroup('no');
+      }
+      function renderGroup(group) {
+        var p = players[current];
+        var el = document.getElementById(GROUPS[group]);
+        el.innerHTML = '';
+        if (p[group].length === 0) {
+          el.innerHTML = '<div class="empty-hint">— empty —</div>';
+          return;
+        }
+        p[group].forEach(function (food) {
+          var d = document.createElement('div');
+          d.className = 'sort-item';
+          d.innerHTML =
+            '<button class="mini" title="Move up">↑</button>' +
+            '<button class="mini" title="Move down">↓</button>' +
+            '<span class="sort-name">' + food + '</span>' +
+            '<button class="mini ' + (group === 'want' ? 'on-want' : '') + '" title="Want">❤️</button>' +
+            '<button class="mini ' + (group === 'ok' ? 'on-ok' : '') + '" title="OK">🙂</button>' +
+            '<button class="mini ' + (group === 'no' ? 'on-no' : '') + '" title="No">🙅</button>';
+          var btns = d.querySelectorAll('.mini');
+          btns[0].onclick = function () { reorder(food, -1); };
+          btns[1].onclick = function () { reorder(food, 1); };
+          btns[2].onclick = function () { moveTo(food, 'want'); };
+          btns[3].onclick = function () { moveTo(food, 'ok'); };
+          btns[4].onclick = function () { moveTo(food, 'no'); };
+          el.appendChild(d);
+        });
+      }
+      window.finishSort = function () {
+        if (current === 1) {
+          showPass(players[0].name, function () { goSort(0); });
+        } else {
+          calculateResult();
+        }
+      };
+
+      // ---------- result ----------
+      function calculateResult() {
+        var results = [];
+        allFoods.forEach(function (food) {
+          if (players[0].no.indexOf(food) !== -1 || players[1].no.indexOf(food) !== -1) {
+            results.push({ name: food, score: 0, rejected: true });
+            return;
+          }
+          var score = 0;
+          players.forEach(function (p) {
+            if (p.want.indexOf(food) !== -1) {
+              score += 100 + Math.max(0, 15 - p.want.indexOf(food) * 3);
+            } else if (p.ok.indexOf(food) !== -1) {
+              score += 50 + Math.max(0, 10 - p.ok.indexOf(food) * 2);
+            }
+          });
+          results.push({ name: food, score: score, rejected: false });
+        });
+        results.sort(function (a, b) {
+          if (a.rejected && !b.rejected) return 1;
+          if (!a.rejected && b.rejected) return -1;
+          return b.score - a.score;
+        });
+        renderResult(results);
+        showView('view-result');
+      }
+      function renderResult(results) {
+        var top = results.find(function (r) { return !r.rejected; });
+        document.getElementById('result-sub').innerText =
+          top ? ('Top pick: ' + top.name + ' 🎉') : 'No option both of you accept — try again!';
+        var c = document.getElementById('result-list');
+        c.innerHTML = '';
+        var rank = 1;
+        results.forEach(function (item) {
+          var d = document.createElement('div');
+          d.className = 'result-item' + (item.rejected ? ' rejected' : (rank === 1 ? ' winner' : ''));
+          if (item.rejected) {
+            d.innerHTML = '<div class="result-rank">–</div><div class="result-name">' +
+              item.name + '</div><div class="result-score">Pass</div>';
+          } else {
+            d.innerHTML = '<div class="result-rank">' + rank + '</div><div class="result-name">' +
+              item.name + '</div><div class="result-score">' + item.score + ' pt</div>';
+            rank++;
+          }
+          c.appendChild(d);
+        });
+      }
+      window.playAgain = function () {
+        showView('view-setup');
+      };
+    </script>
+  </body>
+</html>
